@@ -2,6 +2,7 @@
 """ """
 from tests.test_models.test_base_model import test_basemodel
 from models.user import User
+from models import storage
 
 
 class test_User(test_basemodel):
@@ -32,3 +33,11 @@ class test_User(test_basemodel):
         """ """
         new = self.value()
         self.assertEqual(type(new.password), str)
+
+    def test_additional_parameter(self):
+        """Tests and validates acceptance of additional parameters"""
+        new_user = User()
+        storage.save()
+        new_user.__dict__.update({'state_id': '003452'})
+        storage._update(new_user)
+        self.assertTrue('state_id' in new_user.__dict__.keys())

@@ -2,6 +2,7 @@
 """ """
 from tests.test_models.test_base_model import test_basemodel
 from models.city import City
+from models import storage
 
 
 class test_City(test_basemodel):
@@ -22,3 +23,11 @@ class test_City(test_basemodel):
         """ """
         new = self.value()
         self.assertEqual(type(new.name), str)
+
+    def test_additional_parameter(self):
+        """Tests and validates acceptance of additional parameters"""
+        new_city = City()
+        storage.save()
+        new_city.__dict__.update({'state_id': '005538'})
+        storage._update(new_city)
+        self.assertTrue('state_id' in new_city.__dict__.keys())
