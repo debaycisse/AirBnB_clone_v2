@@ -45,6 +45,12 @@ class FileStorage:
             with open(FileStorage.__file_path, 'r') as f:
                 temp = json.load(f)
                 for key, val in temp.items():
-                        self.all()[key] = classes[val['__class__']](**val)
+                    self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
+
+    def _update(self, obj):
+        """updates an existing instance on the __objects"""
+        key = obj.to_dict()['__class__'] + '.' + obj.id
+        if key in FileStorage.__objects.keys():
+            self.all()[key] = obj

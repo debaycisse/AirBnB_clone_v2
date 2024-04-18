@@ -107,3 +107,12 @@ class test_fileStorage(unittest.TestCase):
         from models.engine.file_storage import FileStorage
         print(type(storage))
         self.assertEqual(type(storage), FileStorage)
+
+    def test_multiple_parameter_handling(self):
+        """Tests and validates that instance can accept
+        additional parameters than those defined in its class"""
+        new_strg = BaseModel()
+        storage.save()
+        new_strg.__dict__.update({'more_param': 'More_parameter'})
+        storage._update(new_strg)
+        self.assertTrue('more_param' in new_strg.__dict__.keys())
