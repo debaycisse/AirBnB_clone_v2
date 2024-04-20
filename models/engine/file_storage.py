@@ -38,6 +38,7 @@ class FileStorage:
         for k in classes.keys():
             if classes[k] is cls:
                 cls_key = k
+                break
         for obj in FileStorage.__objects:
             if obj.split('.')[0] == cls_key:
                 all_cls.update({obj: FileStorage.__objects[obj]})
@@ -58,13 +59,6 @@ class FileStorage:
 
     def reload(self):
         """Loads storage dictionary from file"""
-        from models.base_model import BaseModel
-        from models.user import User
-        from models.place import Place
-        from models.state import State
-        from models.city import City
-        from models.amenity import Amenity
-        from models.review import Review
 
         classes = {
                     'BaseModel': BaseModel, 'User': User, 'Place': Place,
@@ -84,7 +78,7 @@ class FileStorage:
         """updates an existing instance on the __objects"""
         key = obj.to_dict()['__class__'] + '.' + obj.id
         if key in FileStorage.__objects.keys():
-            self.all()[key] = obj
+            FileStorage.__objects[key] = obj
 
     def delete(self, obj=None):
         """deletes an existing instance that is stored in __objects
@@ -94,6 +88,6 @@ class FileStorage:
         """
         if obj is not None:
             key = obj.to_dict()['__class__'] + '.' + obj.id
-            if key in self.all():
-                del self.all()[key]
+            if key in FileStorage.__objects:
+                del FileStorage.__objects[key]
                 self.save()
