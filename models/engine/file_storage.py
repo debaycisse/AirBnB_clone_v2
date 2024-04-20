@@ -16,7 +16,15 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """Returns a dictionary of models currently in storage"""
+        """Returns a dictionary of models currently in storage
+
+        Args:
+            cls - this is the class name whose
+            instances are to be returned
+
+        Returns:
+            all instances of the passed class name
+        """
         if cls is None:
             return FileStorage.__objects
         classes = {'Amenity': Amenity, 'BaseModel': BaseModel,
@@ -79,7 +87,11 @@ class FileStorage:
             self.all()[key] = obj
 
     def delete(self, obj=None):
-        """deletes an existing instance that is stored in __objects"""
+        """deletes an existing instance that is stored in __objects
+
+        Args:
+            obj - the object or class instance that should be deleted
+        """
         if obj is not None:
             key = obj.to_dict()['__class__'] + '.' + obj.id
             if key in self.all():
