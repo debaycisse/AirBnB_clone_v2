@@ -131,15 +131,18 @@ class HBNBCommand(cmd.Cmd):
                 data = _args[i].split('=')
                 key = data[0]
                 value = data[1]
-                if value.replace('_', '').replace('"', '').isalpha():
+                try:
+                    value = eval(value)
+                except Exception:
+                    pass
+                if isinstance(value, str):
                     value = value.replace('_', ' ').replace('"', '')
                     new_instance.__dict__.update({key: value})
                     storage._update(new_instance)
-                elif value.replace('-', '').replace('.', '').isnumeric():
+                elif isinstance(value, int):
                     new_instance.__dict__.update({key: value})
                     storage._update(new_instance)
-                elif value.replace('"', '').isdigit():
-                    value = value.replace('"', '')
+                elif isinstance(value, float):
                     new_instance.__dict__.update({key: value})
                     storage._update(new_instance)
             storage.save()
