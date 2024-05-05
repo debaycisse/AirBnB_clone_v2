@@ -1,47 +1,33 @@
 #!/usr/bin/python3
-"""
-Fabric script that distributes an archive to web servers
-"""
-from fabric.api import env, put, run
-import os
+"""A Fabric script that distributes an archive to
+web srver, using the Fabric modules"""
 
-env.hosts = ['34.229.55.139', '54.90.32.207']
+from fabric.api import env, put, cd, sudo
+from os import path
 
 
 def do_deploy(archive_path):
-    """
-    Distributes an archive to web servers
+    """This function uses the Fabric module and its methods
+    to distribute an archive to webservers"""
 
-    Args:
-        archive_path (str): Path to the archive to be deployed
-
-    Returns:
-        bool: True if all operations are successful, False otherwise
-    """
-    if not os.path.exists(archive_path):
-        return False
-
+    web_01 = '34.229.55.139'
+    web_02 = '54.90.32.207'
     try:
-        # Upload the archive to the /tmp/ directory of the web server
+        env.hosts = [web_01, web_02]
+        env.user = 'ubuntu'
+        if not path.exists(archive_path):
+            return False
         put(archive_path, "/tmp/")
-
-        # Get the filename without extension
-        file_name = archive_path.split("/")[-1].split(".")[0]
-
-        # Uncompress the archive to /data/web_static/releases/<filename> on the web server
-        run("mkdir -p /data/web_static/releases/{}/".format(file_name))
-        run("tar -xzf /tmp/{}.tgz -C /data/web_static/releases/{}/"
-            .format(file_name, file_name))
-
-        # Delete the archive from the web server
-        run("rm /tmp/{}.tgz".format(file_name))
-
-        # Delete the symbolic link /data/web_static/current
-        run("rm -rf /data/web_static/current")
-
-        # Create a new symbolic link
-        run("ln -s /data/web_static/releases/{}/ /data/web_static/current"
-            .format(file_name))
+        filename = archive_path.split('/')[-1]
+        with cd("/data/web_static/releases"):
+            new_folder = filename.split('.')[0]
+            sudo("mkdir -p {}".format(new_folder))
+            sudo("tar -xzf {} --directory={}/".format(
+                filename, new_folder))
+            sudo("rm -f /tmp/{}".format(filename))
+            sudo("rm -f /data/web_static/current")
+            sudo("ln -s {} {}/".format(
+                new_folder, '/data/web_static/current'))
         return True
     except Exception as e:
         return False
