@@ -25,11 +25,12 @@ def c_text(text):
     return "C {}".format(text.replace('_', ' '))
 
 
+@app.route('/python', defaults={'text': 'is cool'})
 @app.route('/python/<text>')
 def python_text(text):
     """handles and processes a query to route /python/<text>"""
     return f"Python {text.replace('_', ' ')}"
 
 
-if __name__ == '__mian__':
+if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
