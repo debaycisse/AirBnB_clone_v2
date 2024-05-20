@@ -10,6 +10,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+from os import getenv
 
 
 class HBNBCommand(cmd.Cmd):
@@ -138,13 +139,16 @@ class HBNBCommand(cmd.Cmd):
                 if isinstance(value, str):
                     value = value.replace('_', ' ').replace('"', '')
                     new_instance.__dict__.update({key: value})
-                    storage._update(new_instance)
+                    if not getenv('HBNB_TYPE_STORAGE'):
+                        storage._update(new_instance)
                 elif isinstance(value, int):
                     new_instance.__dict__.update({key: value})
-                    storage._update(new_instance)
+                    if not getenv('HBNB_TYPE_STORAGE'):
+                        storage._update(new_instance)
                 elif isinstance(value, float):
                     new_instance.__dict__.update({key: value})
-                    storage._update(new_instance)
+                    if not getenv('HBNB_TYPE_STORAGE'):
+                        storage._update(new_instance)
             storage.save()
         print(new_instance.id)
 
@@ -177,7 +181,10 @@ class HBNBCommand(cmd.Cmd):
 
         key = c_name + "." + c_id
         try:
-            print(storage._FileStorage__objects[key])
+            if not getenv('HBNB_TYPE_STORAGE'):
+                print(storage._FileStorage__objects[key])
+            else:
+                print(storage.get_one(c_name, c_id))
         except KeyError:
             print("** no instance found **")
 
@@ -224,16 +231,26 @@ class HBNBCommand(cmd.Cmd):
         print_list = []
 
         if args:
-            args = args.split(' ')[0]  # remove possible trailing args
-            if args not in HBNBCommand.classes:
+            _args = args.split(' ')[0]  # remove possible trailing args
+            if _args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
+            if not getenv('HBNB_TYPE_STORAGE'):
+                for k, v in storage._FileStorage__objects.items():
+                    if k.split('.')[0] == _args:
+                        print_list.append(str(v))
+            if getenv('HBNB_TYPE_STORAGE'):
+                for k, v in storage.all(_args).items():
+                    if k.split('.')[0] == _args:
+                        print_list.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
-                print_list.append(str(v))
+            if not getenv('HBNB_TYPE_STORAGE'):
+                for k, v in storage._FileStorage__objects.items():
+                    print_list.append(str(v))
+            if getenv('HBNB_TYPE_STORAGE'):
+                for k, v in storage.all(_args).items():
+                    if k.split('.')[0] == _args:
+                        print_list.append(str(v))
 
         print(print_list)
 
@@ -245,8 +262,12 @@ class HBNBCommand(cmd.Cmd):
     def do_count(self, args):
         """Count current number of class instances"""
         count = 0
-        for k, v in storage._FileStorage__objects.items():
-            if args == k.split('.')[0]:
+        if not getenv('HBNB_TYPE_STORAGE'):
+            for k, v in storage._FileStorage__objects.items():
+                if args == k.split('.')[0]:
+                    count += 1
+        if getenv('HBNB_TYPE_STORAGE'):
+            for k in storage.all(args.split(' ')[0]).keys():
                 count += 1
         print(count)
 

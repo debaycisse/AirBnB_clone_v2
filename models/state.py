@@ -9,11 +9,16 @@ from os import getenv
 class State(BaseModel, Base):
     """ State class definition """
     __tablename__ = 'states'
+    """id = Column(String(60), primary_key=True)"""
     name = Column(String(128), nullable=False)
     if getenv('HBNB_TYPE_STORAGE') == 'db':
         cities = relationship(
             'City', backref='state',
             cascade='all, delete-orphan')
+
+        def __init__(self, *args, **kwargs):
+            """The contsructor method for this class"""
+            super().__init__(*args, **kwargs)
     else:
         @property
         def cities(self):

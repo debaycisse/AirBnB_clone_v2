@@ -4,12 +4,18 @@ import uuid
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime
+from os import getenv
 
 Base = declarative_base()
 
 
 class BaseModel:
     """A base class for all hbnb models"""
+    if (getenv('HBNB_TYPE_STORAGE') == 'db'):
+        id = Column(String(60), primary_key=True)
+        created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+        updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+
     def __init__(self, *args, **kwargs):
         """Instatntiates a new model
 
@@ -17,30 +23,27 @@ class BaseModel:
             args - is a list non-keyword arguments
             kwargs - is a list of keyword arguments
         """
-        from os import getenv
-        if getenv('HBNB_TYPE_STORAGE') == 'db':
-            id = Column(String(60), default=uuid.uuid4(), primary_key=True)
-            if not kwargs:
-                created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
-                updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
-            else:
-                kwargs['updated_at'] = Column(DateTime, nullable=False, default=datetime.strptime(kwargs['updated_at'], '%Y-%m-%dT%H:%M:%S.%f'))
-                kwargs['created_at'] = Column(DateTime, nullable=False, default=datetime.strptime(kwargs['created_at'], '%Y-%m-%dT%H:%M:%S.%f'))
-                if '__class__' in kwargs:
-                    del kwargs['__class__']
-                self.__dict__.update(kwargs)
+        if not kwargs:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
         else:
-            if not kwargs:
-                from models import storage
+            for k, v in kwargs.items():
+                not_cls = (k != '__class__')
+                not_upd = (k != 'updated_at')
+                not_crd = (k != 'created_at')
+                if (not_cls and not_upd and not_crd):
+                    setattr(self, k, v)
+            time_f = '%Y-%m-%dT%H:%M:%S.%f'
+            if kwargs['created_at']:
+                self.created_at = datetime.strptime(kwargs['created_at'], time_f)
+            if kwargs['updated_at']:
+                self.updated_at = datetime.strptime(kwargs['updated_at'], time_f)
+            if ('id' not in kwargs) or (kwargs['id'] is None):
                 self.id = str(uuid.uuid4())
-                self.created_at = datetime.now()
-                self.updated_at = datetime.now()
-            else:
-                kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'], '%Y-%m-%dT%H:%M:%S.%f')
-                kwargs['created_at'] = datetime.strptime(kwargs['created_at'], '%Y-%m-%dT%H:%M:%S.%f')
-                if '__class__' in kwargs:
-                    del kwargs['__class__']
-                self.__dict__.update(kwargs)
+            if '__class__' in kwargs:
+                del kwargs['__class__']
+            self.__dict__.update(kwargs)
 
     def __str__(self):
         """Returns a string representation of the instance"""
