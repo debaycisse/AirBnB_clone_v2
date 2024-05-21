@@ -48,14 +48,14 @@ class DBStorage:
                     key = model + '.' + obj.id
                     dictionary.update({key: obj})
         elif cls in classes.values():
-            model_n = "{}".format(cls)
-            model_n = model_n.split('.')[1].title()
-            for obj in self.__session.query(cls).all():
-                key = model_n + '.' + obj.id
+        
+            for obj in self.__session.query(classes[cls]).all():
+                key = cls + '.' + obj.id
                 dictionary.update({key: obj})
         else:
             print("The passed class does not exist")
             return
+        print(dictionary)
         return dictionary
 
     def get_one(self, cls, id):

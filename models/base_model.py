@@ -11,10 +11,10 @@ Base = declarative_base()
 
 class BaseModel:
     """A base class for all hbnb models"""
-    if (getenv('HBNB_TYPE_STORAGE') == 'db'):
-        id = Column(String(60), primary_key=True)
-        created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
-        updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+
+    id = Column(String(60), primary_key=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
 
     def __init__(self, *args, **kwargs):
         """Instatntiates a new model
@@ -59,12 +59,15 @@ class BaseModel:
 
     def to_dict(self):
         """Convert instance into dict format"""
+        time_f = '%Y-%m-%dT%H:%M:%S.%f'
         dictionary = {}
         dictionary.update(self.__dict__)
         dictionary.update({'__class__':
                           (str(type(self)).split('.')[-1]).split('\'')[0]})
-        dictionary['created_at'] = self.created_at.isoformat()
-        dictionary['updated_at'] = self.updated_at.isoformat()
+        if 'created_at' in dictionary:
+            dictionary['created_at'] = dictionary['created_at'].isisoformat()
+        if 'updated_at' in dictionary:
+            dictionary['updated_at'] = dictionary['updated_at'].isisoformat()
         if '_sa_instance_state' in dictionary:
             dictionary.pop('_sa_instance_state')
         return dictionary

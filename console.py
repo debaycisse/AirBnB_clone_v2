@@ -229,9 +229,8 @@ class HBNBCommand(cmd.Cmd):
     def do_all(self, args):
         """ Shows all objects, or all objects of a class"""
         print_list = []
-
+        _args = args.split(' ')[0]  # remove possible trailing args
         if args:
-            _args = args.split(' ')[0]  # remove possible trailing args
             if _args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
@@ -240,7 +239,7 @@ class HBNBCommand(cmd.Cmd):
                     if k.split('.')[0] == _args:
                         print_list.append(str(v))
             if getenv('HBNB_TYPE_STORAGE'):
-                for k, v in storage.all(_args).items():
+                for k, v in storage.all(HBNBCommand.classes[_args]).items():
                     if k.split('.')[0] == _args:
                         print_list.append(str(v))
         else:
@@ -248,7 +247,7 @@ class HBNBCommand(cmd.Cmd):
                 for k, v in storage._FileStorage__objects.items():
                     print_list.append(str(v))
             if getenv('HBNB_TYPE_STORAGE'):
-                for k, v in storage.all(_args).items():
+                for k, v in storage.all(HBNBCommand.classes[_args]).items():
                     if k.split('.')[0] == _args:
                         print_list.append(str(v))
 
@@ -262,12 +261,17 @@ class HBNBCommand(cmd.Cmd):
     def do_count(self, args):
         """Count current number of class instances"""
         count = 0
+	_args = args.split(' ')[0]
+        if args:
+            if _args not in HBNBCommand.classes:
+                print("** class doesn't exist **")
+                return
         if not getenv('HBNB_TYPE_STORAGE'):
             for k, v in storage._FileStorage__objects.items():
-                if args == k.split('.')[0]:
+                if _args == k.split('.')[0]:
                     count += 1
         if getenv('HBNB_TYPE_STORAGE'):
-            for k in storage.all(args.split(' ')[0]).keys():
+            for k in storage.all(HBNBCommand.classes[_args]).keys():
                 count += 1
         print(count)
 
