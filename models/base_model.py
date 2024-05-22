@@ -26,7 +26,7 @@ class BaseModel:
         if not kwargs:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
-            self.updated_at = datetime.now()
+            self.updated_at = self.created_at
         else:
             for k, v in kwargs.items():
                 not_cls = (k != '__class__')
@@ -65,9 +65,9 @@ class BaseModel:
         dictionary.update({'__class__':
                           (str(type(self)).split('.')[-1]).split('\'')[0]})
         if 'created_at' in dictionary:
-            dictionary['created_at'] = dictionary['created_at'].isisoformat()
+            dictionary['created_at'] = dictionary['created_at'].isoformat()
         if 'updated_at' in dictionary:
-            dictionary['updated_at'] = dictionary['updated_at'].isisoformat()
+            dictionary['updated_at'] = dictionary['updated_at'].isoformat()
         if '_sa_instance_state' in dictionary:
             dictionary.pop('_sa_instance_state')
         return dictionary
